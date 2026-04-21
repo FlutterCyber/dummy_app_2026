@@ -1,0 +1,22 @@
+{
+  "app_name": "Shop App",
+  "login": "Login",
+  "logout": "Logout",
+  "username": "Username",
+  "password": "Password",
+  "home": "Home",
+  "products": "Products",
+  "cart": "Cart",
+  "profile": "Profile",
+  "settings": "Settings",
+  "search": "Search",
+  "categories": "Categories",
+  "loading": "Loading...",
+  "error": "Something went wrong",
+  "retry": "Retry",
+  "add_to_cart": "Add to Cart",
+  "theme": "Theme",
+  "language": "Language",
+  "dark_mode": "Dark Mode",
+  "light_mode": "Light Mode"
+}

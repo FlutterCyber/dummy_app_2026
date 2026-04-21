@@ -1,0 +1,22 @@
+{
+  "app_name": "Shop App",
+  "login": "Kirish",
+  "logout": "Chiqish",
+  "username": "Foydalanuvchi nomi",
+  "password": "Parol",
+  "home": "Bosh sahifa",
+  "products": "Mahsulotlar",
+  "cart": "Savat",
+  "profile": "Profil",
+  "settings": "Sozlamalar",
+  "search": "Qidirish",
+  "categories": "Kategoriyalar",
+  "loading": "Yuklanmoqda...",
+  "error": "Xatolik yuz berdi",
+  "retry": "Qayta urinish",
+  "add_to_cart": "Savatga qo'shish",
+  "theme": "Mavzu",
+  "language": "Til",
+  "dark_mode": "Tungi rejim",
+  "light_mode": "Kunduzgi rejim"
+}
