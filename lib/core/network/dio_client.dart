@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
-import 'auth_interceptor.dart';
-import '../storage/hive_service.dart';
 
 class DioClient {
-  static Dio createDio(HiveService hiveService) {
+  static Dio createDio() {
     final dio = Dio(
       BaseOptions(
         baseUrl: AppConstants.baseUrl,
@@ -14,14 +12,9 @@ class DioClient {
       ),
     );
 
-    dio.interceptors.addAll([
-      AuthInterceptor(hiveService: hiveService, dio: dio),
-      LogInterceptor(
-        request: true,
-        responseBody: true,
-        error: true,
-      ),
-    ]);
+    dio.interceptors.add(
+      LogInterceptor(request: true, responseBody: true, error: true),
+    );
 
     return dio;
   }

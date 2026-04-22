@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class User extends Equatable {
+class User {
   final int id;
   final String username;
   final String email;
@@ -20,9 +18,4 @@ class User extends Equatable {
     required this.accessToken,
     required this.refreshToken,
   });
-
-  String get fullName => '$firstName $lastName';
-
-  @override
-  List<Object> get props => [id, username, email];
 }

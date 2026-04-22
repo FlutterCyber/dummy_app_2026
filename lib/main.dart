@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
 import 'app.dart';
 import 'core/constants/app_constants.dart';
 import 'core/di/injection.dart';

@@ -4,6 +4,7 @@ import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_usecase.dart';
 
 part 'auth_event.dart';
+
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -18,7 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    final result = await loginUseCase(
+    final result = await loginUseCase.call(
       username: event.username,
       password: event.password,
     );

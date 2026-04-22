@@ -14,7 +14,7 @@ final getIt = GetIt.instance;
 Future<void> configureDependencies() async {
   // ---------- Core ----------
   getIt.registerSingleton<HiveService>(HiveService());
-  getIt.registerSingleton<Dio>(DioClient.createDio(getIt<HiveService>()));
+  getIt.registerSingleton<Dio>(DioClient.createDio());
 
   // ---------- Auth ----------
   getIt.registerSingleton<AuthRemoteDataSource>(
@@ -23,7 +23,6 @@ Future<void> configureDependencies() async {
   getIt.registerSingleton<AuthRepository>(
     AuthRepositoryImpl(
       remoteDataSource: getIt<AuthRemoteDataSource>(),
-      hiveService: getIt<HiveService>(),
     ),
   );
   getIt.registerSingleton<LoginUseCase>(LoginUseCase(getIt<AuthRepository>()));
