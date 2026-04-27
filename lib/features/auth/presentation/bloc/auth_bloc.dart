@@ -4,7 +4,6 @@ import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_usecase.dart';
 
 part 'auth_event.dart';
-
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {

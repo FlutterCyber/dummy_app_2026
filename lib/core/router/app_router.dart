@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/products/presentation/pages/one_product.dart';
+import '../../features/products/presentation/pages/all_products.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -25,7 +27,7 @@ class AppRouter {
       ),
       GoRoute(
         path: home,
-        builder: (context, state) => const Scaffold(body: Center(child: Text('Home'))),
+        builder: (context, state) => const AllProducts(),
       ),
       GoRoute(
         path: cart,
@@ -43,9 +45,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/products/:id',
-        builder: (_, state) => Scaffold(
-          body: Center(child: Text('Product: ${state.pathParameters['id']}')),
-        ),
+        builder: (_, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return OneProduct(productId: id);
+        },
       ),
     ],
   );

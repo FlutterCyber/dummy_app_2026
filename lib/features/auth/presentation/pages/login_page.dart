@@ -41,7 +41,6 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-
             context.go(AppRouter.home);
           } else if (state is AuthError) {
 

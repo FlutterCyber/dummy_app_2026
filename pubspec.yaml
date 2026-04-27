@@ -35,6 +35,9 @@ dependencies:
   # Functional programming
   dartz: ^0.10.1
 
+  # UI
+  shimmer: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
