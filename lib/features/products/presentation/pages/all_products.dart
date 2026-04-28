@@ -13,10 +13,28 @@ class AllProducts extends StatefulWidget {
 }
 
 class _AllProductsState extends State<AllProducts> {
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     context.read<AllProductsBloc>().add(const AllProductsRequested());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (query.trim().isEmpty) {
+      context.read<AllProductsBloc>().add(const AllProductsRequested());
+    } else {
+      context.read<AllProductsBloc>().add(
+        SearchProductsRequested(query.trim()),
+      );
+    }
   }
 
   @override
@@ -30,13 +48,46 @@ class _AllProductsState extends State<AllProducts> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () =>
-                context.read<AllProductsBloc>().add(const AllProductsRequested()),
+            onPressed: () {
+              _searchController.clear();
+              context.read<AllProductsBloc>().add(const AllProductsRequested());
+            },
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, color: colorScheme.outlineVariant),
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: ListenableBuilder(
+                  listenable: _searchController,
+                  builder: (context, _) => _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded),
+                          onPressed: () {
+                            _searchController.clear();
+                            context.read<AllProductsBloc>().add(
+                              const AllProductsRequested(),
+                            );
+                          },
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                isDense: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest,
+              ),
+            ),
+          ),
         ),
       ),
       body: BlocBuilder<AllProductsBloc, AllProductsState>(
@@ -50,7 +101,11 @@ class _AllProductsState extends State<AllProducts> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.wifi_off_rounded, size: 56, color: colorScheme.outline),
+                  Icon(
+                    Icons.wifi_off_rounded,
+                    size: 56,
+                    color: colorScheme.outline,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Ma\'lumot yuklanmadi',
@@ -60,16 +115,15 @@ class _AllProductsState extends State<AllProducts> {
                   Text(
                     state.message,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: colorScheme.outline),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
                   ),
                   const SizedBox(height: 20),
                   FilledButton.icon(
-                    onPressed: () => context
-                        .read<AllProductsBloc>()
-                        .add(const AllProductsRequested()),
+                    onPressed: () => context.read<AllProductsBloc>().add(
+                      const AllProductsRequested(),
+                    ),
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('Qayta urinish'),
                   ),
@@ -80,6 +134,26 @@ class _AllProductsState extends State<AllProducts> {
 
           if (state is AllProductsLoaded) {
             final products = state.allProductsResponse.products;
+
+            if (products.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.search_off_rounded,
+                      size: 56,
+                      color: colorScheme.outline,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Hech narsa topilmadi',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              );
+            }
 
             return ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -112,7 +186,7 @@ class _ProductCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: InkWell(
-        onTap: () => context.go('/products/${product.id}'),
+        onTap: () => context.push('/products/${product.id}'),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -135,8 +209,10 @@ class _ProductCard extends StatelessWidget {
                           color: colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(Icons.image_not_supported_outlined,
-                            color: colorScheme.outline),
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          color: colorScheme.outline,
+                        ),
                       ),
                     ),
                   ),
@@ -146,7 +222,9 @@ class _ProductCard extends StatelessWidget {
                       left: 4,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 2),
+                          horizontal: 5,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: colorScheme.error,
                           borderRadius: BorderRadius.circular(6),
@@ -172,7 +250,9 @@ class _ProductCard extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 2),
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(20),
@@ -190,7 +270,9 @@ class _ProductCard extends StatelessWidget {
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2),
+                              horizontal: 7,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: colorScheme.errorContainer,
                               borderRadius: BorderRadius.circular(20),
@@ -210,10 +292,9 @@ class _ProductCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       product.title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -226,9 +307,7 @@ class _ProductCard extends StatelessWidget {
                           children: [
                             Text(
                               '\$${discountedPrice.toStringAsFixed(2)}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: colorScheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -237,9 +316,7 @@ class _ProductCard extends StatelessWidget {
                             if (product.discountPercentage > 0)
                               Text(
                                 '\$${product.price.toStringAsFixed(2)}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
+                                style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
                                       color: colorScheme.outline,
                                       decoration: TextDecoration.lineThrough,
@@ -249,14 +326,15 @@ class _ProductCard extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            Icon(Icons.star_rounded,
-                                size: 16, color: Colors.amber.shade600),
+                            Icon(
+                              Icons.star_rounded,
+                              size: 16,
+                              color: Colors.amber.shade600,
+                            ),
                             const SizedBox(width: 2),
                             Text(
                               product.rating.toStringAsFixed(1),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ],
@@ -306,11 +384,13 @@ class _ShimmerList extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                          width: 70, height: 16, color: Colors.white),
+                      Container(width: 70, height: 16, color: Colors.white),
                       const SizedBox(height: 8),
                       Container(
-                          width: double.infinity, height: 14, color: Colors.white),
+                        width: double.infinity,
+                        height: 14,
+                        color: Colors.white,
+                      ),
                       const SizedBox(height: 4),
                       Container(width: 140, height: 14, color: Colors.white),
                       const SizedBox(height: 12),

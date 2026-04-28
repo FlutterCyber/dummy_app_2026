@@ -10,3 +10,11 @@ abstract class AllProductsEvent extends Equatable {
 class AllProductsRequested extends AllProductsEvent {
   const AllProductsRequested();
 }
+
+class SearchProductsRequested extends AllProductsEvent {
+  final String query;
+  const SearchProductsRequested(this.query);
+
+  @override
+  List<Object> get props => [query];
+}

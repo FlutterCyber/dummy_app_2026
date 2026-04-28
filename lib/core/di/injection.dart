@@ -15,6 +15,7 @@ import '../../features/products/domain/usecases/get_single_product_usecase.dart'
 import '../../features/products/presentation/bloc/one_product/product_bloc.dart';
 import '../../features/products/presentation/bloc/all_products/all_products_bloc.dart';
 import '../../features/products/domain/usecases/get_all_products_usecase.dart';
+import '../../features/products/domain/usecases/search_products_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -53,7 +54,13 @@ Future<void> configureDependencies() async {
   getIt.registerSingleton<GetAllProductsUseCase>(
     GetAllProductsUseCase(getIt<ProductRepository>()),
   );
+  getIt.registerSingleton<SearchProductsUseCase>(
+    SearchProductsUseCase(getIt<ProductRepository>()),
+  );
   getIt.registerFactory<AllProductsBloc>(
-    () => AllProductsBloc(getAllProductsUseCase: getIt<GetAllProductsUseCase>()),
+    () => AllProductsBloc(
+      getAllProductsUseCase: getIt<GetAllProductsUseCase>(),
+      searchProductsUseCase: getIt<SearchProductsUseCase>(),
+    ),
   );
 }

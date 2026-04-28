@@ -7,6 +7,7 @@ import '../../../../core/errors/exceptions.dart';
 abstract class ProductRemoteDatasource {
   Future<ProductModel> getProduct({required int id});
   Future<AllProductsModel> getAllProducts();
+  Future<AllProductsModel> searchProducts({required String query});
 }
 
 class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
@@ -35,6 +36,19 @@ class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data['message'] ?? 'Get all products failed',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<AllProductsModel> searchProducts({required String query}) async {
+    try {
+      final response = await dio.get('/products/search', queryParameters: {'q': query});
+      return AllProductsModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Search products failed',
         statusCode: e.response?.statusCode,
       );
     }
