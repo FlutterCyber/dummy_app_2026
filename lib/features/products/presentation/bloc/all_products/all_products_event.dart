@@ -4,17 +4,26 @@ abstract class AllProductsEvent extends Equatable {
   const AllProductsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class AllProductsRequested extends AllProductsEvent {
-  const AllProductsRequested();
+  final String? sortBy;
+  final String? order;
+
+  const AllProductsRequested({this.sortBy, this.order});
+
+  @override
+  List<Object?> get props => [sortBy, order];
 }
 
 class SearchProductsRequested extends AllProductsEvent {
   final String query;
-  const SearchProductsRequested(this.query);
+  final String? sortBy;
+  final String? order;
+
+  const SearchProductsRequested(this.query, {this.sortBy, this.order});
 
   @override
-  List<Object> get props => [query];
+  List<Object?> get props => [query, sortBy, order];
 }

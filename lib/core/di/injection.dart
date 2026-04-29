@@ -31,6 +31,7 @@ Future<void> configureDependencies() async {
   getIt.registerSingleton<AuthRepository>(
     AuthRepositoryImpl(
       remoteDataSource: getIt<AuthRemoteDataSource>(),
+      hiveService: getIt<HiveService>(),
     ),
   );
   getIt.registerSingleton<LoginUseCase>(LoginUseCase(getIt<AuthRepository>()));

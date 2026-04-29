@@ -22,9 +22,9 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, AllProductsResponse>> getAllProducts() async {
+  Future<Either<Failure, AllProductsResponse>> getAllProducts({String? sortBy, String? order}) async {
     try {
-      final result = await productRemoteDatasource.getAllProducts();
+      final result = await productRemoteDatasource.getAllProducts(sortBy: sortBy, order: order);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -32,9 +32,9 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, AllProductsResponse>> searchProducts({required String query}) async {
+  Future<Either<Failure, AllProductsResponse>> searchProducts({required String query, String? sortBy, String? order}) async {
     try {
-      final result = await productRemoteDatasource.searchProducts(query: query);
+      final result = await productRemoteDatasource.searchProducts(query: query, sortBy: sortBy, order: order);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

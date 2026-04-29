@@ -8,7 +8,7 @@ class GetAllProductsUseCase {
 
   GetAllProductsUseCase(this.productRepository);
 
-  Future<Either<Failure, AllProductsResponse>> call() {
-    return productRepository.getAllProducts();
+  Future<Either<Failure, AllProductsResponse>> call({String? sortBy, String? order}) {
+    return productRepository.getAllProducts(sortBy: sortBy, order: order);
   }
 }

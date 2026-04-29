@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../domain/entity/product.dart';
 import '../bloc/all_products/all_products_bloc.dart';
+import '../widgets/sort_bottom_sheet.dart';
 
 class AllProducts extends StatefulWidget {
   const AllProducts({super.key});
@@ -14,6 +15,10 @@ class AllProducts extends StatefulWidget {
 
 class _AllProductsState extends State<AllProducts> {
   final TextEditingController _searchController = TextEditingController();
+
+  String? _activeSortBy;
+  String? _activeOrder;
+  String? _activeSortLabel;
 
   @override
   void initState() {
@@ -29,12 +34,40 @@ class _AllProductsState extends State<AllProducts> {
 
   void _onSearchChanged(String query) {
     if (query.trim().isEmpty) {
-      context.read<AllProductsBloc>().add(const AllProductsRequested());
+      context.read<AllProductsBloc>().add(
+        AllProductsRequested(sortBy: _activeSortBy, order: _activeOrder),
+      );
     } else {
       context.read<AllProductsBloc>().add(
-        SearchProductsRequested(query.trim()),
+        SearchProductsRequested(query.trim(), sortBy: _activeSortBy, order: _activeOrder),
       );
     }
+  }
+
+  void _showSortSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SortBottomSheet(
+        activeSortBy: _activeSortBy,
+        activeOrder: _activeOrder,
+        onSortSelected: (sortBy, order, label) {
+          setState(() {
+            _activeSortBy = sortBy;
+            _activeOrder = order;
+            _activeSortLabel = label;
+          });
+          final query = _searchController.text.trim();
+          context.read<AllProductsBloc>().add(
+            query.isEmpty
+                ? AllProductsRequested(sortBy: sortBy, order: order)
+                : SearchProductsRequested(query, sortBy: sortBy, order: order),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -47,9 +80,21 @@ class _AllProductsState extends State<AllProducts> {
         title: const Text('Products'),
         actions: [
           IconButton(
+            icon: Badge(
+              isLabelVisible: _activeSortBy != null,
+              child: const Icon(Icons.sort_rounded),
+            ),
+            onPressed: _showSortSheet,
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
               _searchController.clear();
+              setState(() {
+                _activeSortBy = null;
+                _activeOrder = null;
+                _activeSortLabel = null;
+              });
               context.read<AllProductsBloc>().add(const AllProductsRequested());
             },
           ),

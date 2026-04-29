@@ -8,8 +8,9 @@ import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
+  final HiveService hiveService;
 
-  AuthRepositoryImpl({required this.remoteDataSource});
+  AuthRepositoryImpl({required this.remoteDataSource, required this.hiveService});
 
   @override
   Future<Either<Failure, User>> login({
@@ -20,6 +21,11 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.login(
         username: username,
         password: password,
+      );
+
+      await hiveService.saveTokens(
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
       );
 
       return Right(user);

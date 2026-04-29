@@ -6,8 +6,14 @@ import '../../../../core/errors/exceptions.dart';
 
 abstract class ProductRemoteDatasource {
   Future<ProductModel> getProduct({required int id});
-  Future<AllProductsModel> getAllProducts();
-  Future<AllProductsModel> searchProducts({required String query});
+
+  Future<AllProductsModel> getAllProducts({String? sortBy, String? order});
+
+  Future<AllProductsModel> searchProducts({
+    required String query,
+    String? sortBy,
+    String? order,
+  });
 }
 
 class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
@@ -29,9 +35,18 @@ class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
   }
 
   @override
-  Future<AllProductsModel> getAllProducts() async {
+  Future<AllProductsModel> getAllProducts({
+    String? sortBy,
+    String? order,
+  }) async {
     try {
-      final response = await dio.get('/products');
+      final queryParameters = <String, dynamic>{};
+      if (sortBy != null) queryParameters['sortBy'] = sortBy;
+      if (order != null) queryParameters['order'] = order;
+      final response = await dio.get(
+        '/products',
+        queryParameters: queryParameters,
+      );
       return AllProductsModel.fromJson(response.data);
     } on DioException catch (e) {
       throw ServerException(
@@ -42,9 +57,19 @@ class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
   }
 
   @override
-  Future<AllProductsModel> searchProducts({required String query}) async {
+  Future<AllProductsModel> searchProducts({
+    required String query,
+    String? sortBy,
+    String? order,
+  }) async {
     try {
-      final response = await dio.get('/products/search', queryParameters: {'q': query});
+      final queryParameters = <String, dynamic>{'q': query};
+      if (sortBy != null) queryParameters['sortBy'] = sortBy;
+      if (order != null) queryParameters['order'] = order;
+      final response = await dio.get(
+        '/products/search',
+        queryParameters: queryParameters,
+      );
       return AllProductsModel.fromJson(response.data);
     } on DioException catch (e) {
       throw ServerException(

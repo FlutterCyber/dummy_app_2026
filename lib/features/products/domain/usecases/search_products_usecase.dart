@@ -8,7 +8,7 @@ class SearchProductsUseCase {
 
   SearchProductsUseCase(this.productRepository);
 
-  Future<Either<Failure, AllProductsResponse>> call({required String query}) {
-    return productRepository.searchProducts(query: query);
+  Future<Either<Failure, AllProductsResponse>> call({required String query, String? sortBy, String? order}) {
+    return productRepository.searchProducts(query: query, sortBy: sortBy, order: order);
   }
 }
