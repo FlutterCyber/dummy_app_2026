@@ -79,6 +79,10 @@ class _AllProductsState extends State<AllProducts> {
         title: const Text('Products'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_rounded),
+            onPressed: () => context.push('/products/add'),
+          ),
+          IconButton(
             icon: Badge(
               isLabelVisible: _activeSortBy != null,
               child: const Icon(Icons.sort_rounded),

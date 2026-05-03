@@ -6,6 +6,7 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entity/product.dart';
 import '../../domain/entity/all_products.dart';
 import '../../domain/entity/category.dart';
+import '../../domain/entity/new_product.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDatasource productRemoteDatasource;
@@ -56,6 +57,16 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, AllProductsResponse>> getProductsByCategory({required String slug, String? sortBy, String? order}) async {
     try {
       final result = await productRemoteDatasource.getProductsByCategory(slug: slug, sortBy: sortBy, order: order);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Product>> addProduct({required NewProduct newProduct}) async {
+    try {
+      final result = await productRemoteDatasource.addProduct(newProduct: newProduct);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

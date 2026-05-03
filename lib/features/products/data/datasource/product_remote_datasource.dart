@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:dummy_app_2026/features/products/data/model/product_model.dart';
 import 'package:dummy_app_2026/features/products/data/model/all_products_model.dart';
 import 'package:dummy_app_2026/features/products/data/model/category_model.dart';
+import 'package:dummy_app_2026/features/products/domain/entity/new_product.dart';
+import 'package:dummy_app_2026/features/products/data/model/new_product_model.dart';
 
 import '../../../../core/errors/exceptions.dart';
 
@@ -23,6 +25,8 @@ abstract class ProductRemoteDatasource {
     String? sortBy,
     String? order,
   });
+
+  Future<ProductModel> addProduct({required NewProduct newProduct});
 }
 
 class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
@@ -121,6 +125,22 @@ class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data['message'] ?? 'Get products by category failed',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<ProductModel> addProduct({required NewProduct newProduct}) async {
+    try {
+      final response = await dio.post(
+        '/products/add',
+        data: NewProductModel.fromEntity(newProduct).toJson(),
+      );
+      return ProductModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Add product failed',
         statusCode: e.response?.statusCode,
       );
     }

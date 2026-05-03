@@ -3,6 +3,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/products/presentation/pages/one_product.dart';
 import '../../features/products/presentation/pages/category_products_page.dart';
+import '../../features/products/presentation/pages/add_product_page.dart';
 import '../../features/main/presentation/pages/main_shell.dart';
 
 class AppRouter {
@@ -26,6 +27,10 @@ class AppRouter {
       GoRoute(
         path: home,
         builder: (_, __) => const MainShell(),
+      ),
+      GoRoute(
+        path: '/products/add',
+        builder: (_, __) => const AddProductPage(),
       ),
       GoRoute(
         path: '/products/:id',
