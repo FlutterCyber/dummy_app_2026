@@ -1,53 +1,45 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/products/presentation/pages/one_product.dart';
-import '../../features/products/presentation/pages/all_products.dart';
+import '../../features/products/presentation/pages/category_products_page.dart';
+import '../../features/main/presentation/pages/main_shell.dart';
 
 class AppRouter {
   static const String splash = '/';
   static const String login = '/login';
   static const String home = '/home';
   static const String productDetail = '/products/:id';
-  static const String cart = '/cart';
-  static const String profile = '/profile';
-  static const String settings = '/settings';
+  static const String categoryProducts = '/categories/:slug';
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
     routes: [
       GoRoute(
         path: splash,
-        builder: (context, state) => const SplashPage(),
+        builder: (_, __) => const SplashPage(),
       ),
       GoRoute(
         path: login,
-        builder: (context, state) => const LoginPage(),
+        builder: (_, __) => const LoginPage(),
       ),
       GoRoute(
         path: home,
-        builder: (context, state) => const AllProducts(),
-      ),
-      GoRoute(
-        path: cart,
-        builder: (context, state) => const Scaffold(body: Center(child: Text('Cart'))),
-      ),
-      GoRoute(
-        path: profile,
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Profile'))),
-      ),
-      GoRoute(
-        path: settings,
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Settings'))),
+        builder: (_, __) => const MainShell(),
       ),
       GoRoute(
         path: '/products/:id',
         builder: (_, state) {
           final id = int.parse(state.pathParameters['id']!);
           return OneProduct(productId: id);
+        },
+      ),
+      GoRoute(
+        path: '/categories/:slug',
+        builder: (_, state) {
+          final slug = state.pathParameters['slug']!;
+          final name = state.extra as String? ?? slug;
+          return CategoryProductsPage(slug: slug, categoryName: name);
         },
       ),
     ],

@@ -3,45 +3,33 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../domain/entity/product.dart';
-import '../bloc/all_products/all_products_bloc.dart';
+import '../bloc/category_products/category_products_bloc.dart';
 import '../widgets/sort_bottom_sheet.dart';
 
-class AllProducts extends StatefulWidget {
-  const AllProducts({super.key});
+class CategoryProductsPage extends StatefulWidget {
+  final String slug;
+  final String categoryName;
+
+  const CategoryProductsPage({
+    super.key,
+    required this.slug,
+    required this.categoryName,
+  });
 
   @override
-  State<AllProducts> createState() => _AllProductsState();
+  State<CategoryProductsPage> createState() => _CategoryProductsPageState();
 }
 
-class _AllProductsState extends State<AllProducts> {
-  final TextEditingController _searchController = TextEditingController();
-
+class _CategoryProductsPageState extends State<CategoryProductsPage> {
   String? _activeSortBy;
   String? _activeOrder;
-  String? _activeSortLabel;
 
   @override
   void initState() {
     super.initState();
-    context.read<AllProductsBloc>().add(const AllProductsRequested());
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    if (query.trim().isEmpty) {
-      context.read<AllProductsBloc>().add(
-        AllProductsRequested(sortBy: _activeSortBy, order: _activeOrder),
-      );
-    } else {
-      context.read<AllProductsBloc>().add(
-        SearchProductsRequested(query.trim(), sortBy: _activeSortBy, order: _activeOrder),
-      );
-    }
+    context
+        .read<CategoryProductsBloc>()
+        .add(CategoryProductsRequested(widget.slug));
   }
 
   void _showSortSheet() {
@@ -55,14 +43,15 @@ class _AllProductsState extends State<AllProducts> {
         activeOrder: _activeOrder,
         onSortSelected: (sortBy, order, label) {
           setState(() {
+            _activeSortBy = sortBy;
             _activeOrder = order;
-            _activeSortLabel = label;
           });
-          final query = _searchController.text.trim();
-          context.read<AllProductsBloc>().add(
-            query.isEmpty
-                ? AllProductsRequested(sortBy: sortBy, order: order)
-                : SearchProductsRequested(query, sortBy: sortBy, order: order),
+          context.read<CategoryProductsBloc>().add(
+            CategoryProductsRequested(
+              widget.slug,
+              sortBy: sortBy,
+              order: order,
+            ),
           );
         },
       ),
@@ -76,7 +65,7 @@ class _AllProductsState extends State<AllProducts> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Products'),
+        title: Text(widget.categoryName),
         actions: [
           IconButton(
             icon: Badge(
@@ -88,59 +77,25 @@ class _AllProductsState extends State<AllProducts> {
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
-              _searchController.clear();
               setState(() {
                 _activeSortBy = null;
                 _activeOrder = null;
-                _activeSortLabel = null;
               });
-              context.read<AllProductsBloc>().add(const AllProductsRequested());
+              context
+                  .read<CategoryProductsBloc>()
+                  .add(CategoryProductsRequested(widget.slug));
             },
           ),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              decoration: InputDecoration(
-                hintText: 'Search products...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: ListenableBuilder(
-                  listenable: _searchController,
-                  builder: (context, _) => _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded),
-                          onPressed: () {
-                            _searchController.clear();
-                            context.read<AllProductsBloc>().add(
-                              const AllProductsRequested(),
-                            );
-                          },
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: colorScheme.surfaceContainerHighest,
-              ),
-            ),
-          ),
-        ),
       ),
-      body: BlocBuilder<AllProductsBloc, AllProductsState>(
+      body: BlocBuilder<CategoryProductsBloc, CategoryProductsState>(
         builder: (context, state) {
-          if (state is AllProductsLoading || state is AllProductsInitial) {
+          if (state is CategoryProductsLoading ||
+              state is CategoryProductsInitial) {
             return _ShimmerList();
           }
 
-          if (state is AllProductsError) {
+          if (state is CategoryProductsError) {
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -159,15 +114,16 @@ class _AllProductsState extends State<AllProducts> {
                   Text(
                     state.message,
                     textAlign: TextAlign.center,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: colorScheme.outline),
                   ),
                   const SizedBox(height: 20),
                   FilledButton.icon(
-                    onPressed: () => context.read<AllProductsBloc>().add(
-                      const AllProductsRequested(),
-                    ),
+                    onPressed: () => context
+                        .read<CategoryProductsBloc>()
+                        .add(CategoryProductsRequested(widget.slug)),
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('Qayta urinish'),
                   ),
@@ -176,8 +132,8 @@ class _AllProductsState extends State<AllProducts> {
             );
           }
 
-          if (state is AllProductsLoaded) {
-            final products = state.allProductsResponse.products;
+          if (state is CategoryProductsLoaded) {
+            final products = state.response.products;
 
             if (products.isEmpty) {
               return Center(
@@ -185,13 +141,13 @@ class _AllProductsState extends State<AllProducts> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.search_off_rounded,
+                      Icons.inbox_outlined,
                       size: 56,
                       color: colorScheme.outline,
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Hech narsa topilmadi',
+                      'Mahsulot topilmadi',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],
@@ -200,7 +156,8 @@ class _AllProductsState extends State<AllProducts> {
             }
 
             return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               itemCount: products.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) =>
@@ -292,26 +249,7 @@ class _ProductCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            product.category,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: colorScheme.onSecondaryContainer,
-                            ),
-                          ),
-                        ),
-                        if (isLowStock) ...[
-                          const SizedBox(width: 6),
+                        if (isLowStock)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 7,
@@ -330,15 +268,15 @@ class _ProductCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
                       product.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -351,7 +289,9 @@ class _ProductCard extends StatelessWidget {
                           children: [
                             Text(
                               '\$${discountedPrice.toStringAsFixed(2)}',
-                              style: Theme.of(context).textTheme.titleMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
                                   ?.copyWith(
                                     color: colorScheme.primary,
                                     fontWeight: FontWeight.bold,
@@ -360,7 +300,9 @@ class _ProductCard extends StatelessWidget {
                             if (product.discountPercentage > 0)
                               Text(
                                 '\$${product.price.toStringAsFixed(2)}',
-                                style: Theme.of(context).textTheme.bodySmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
                                     ?.copyWith(
                                       color: colorScheme.outline,
                                       decoration: TextDecoration.lineThrough,
@@ -378,7 +320,9 @@ class _ProductCard extends StatelessWidget {
                             const SizedBox(width: 2),
                             Text(
                               product.rating.toStringAsFixed(1),
-                              style: Theme.of(context).textTheme.bodySmall
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ],
@@ -428,7 +372,8 @@ class _ShimmerList extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(width: 70, height: 16, color: Colors.white),
+                      Container(
+                          width: 70, height: 16, color: Colors.white),
                       const SizedBox(height: 8),
                       Container(
                         width: double.infinity,
@@ -436,9 +381,11 @@ class _ShimmerList extends StatelessWidget {
                         color: Colors.white,
                       ),
                       const SizedBox(height: 4),
-                      Container(width: 140, height: 14, color: Colors.white),
+                      Container(
+                          width: 140, height: 14, color: Colors.white),
                       const SizedBox(height: 12),
-                      Container(width: 60, height: 18, color: Colors.white),
+                      Container(
+                          width: 60, height: 18, color: Colors.white),
                     ],
                   ),
                 ),

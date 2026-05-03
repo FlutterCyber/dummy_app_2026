@@ -16,7 +16,6 @@ class SortBottomSheet extends StatelessWidget {
     {'label': 'Price: Low to High', 'sortBy': 'price', 'order': 'asc'},
     {'label': 'Price: High to Low', 'sortBy': 'price', 'order': 'desc'},
     {'label': 'Rating: High to Low', 'sortBy': 'rating', 'order': 'desc'},
-    {'label': 'Title: A to Z', 'sortBy': 'title', 'order': 'asc'},
     {'label': 'Discount: Highest', 'sortBy': 'discountPercentage', 'order': 'desc'},
   ];
 

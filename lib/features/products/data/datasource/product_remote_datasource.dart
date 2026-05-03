@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dummy_app_2026/features/products/data/model/product_model.dart';
 import 'package:dummy_app_2026/features/products/data/model/all_products_model.dart';
+import 'package:dummy_app_2026/features/products/data/model/category_model.dart';
 
 import '../../../../core/errors/exceptions.dart';
 
@@ -11,6 +12,14 @@ abstract class ProductRemoteDatasource {
 
   Future<AllProductsModel> searchProducts({
     required String query,
+    String? sortBy,
+    String? order,
+  });
+
+  Future<List<CategoryModel>> getCategories();
+
+  Future<AllProductsModel> getProductsByCategory({
+    required String slug,
     String? sortBy,
     String? order,
   });
@@ -74,6 +83,44 @@ class ProductRemoteDatasourceImpl implements ProductRemoteDatasource {
     } on DioException catch (e) {
       throw ServerException(
         message: e.response?.data['message'] ?? 'Search products failed',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<List<CategoryModel>> getCategories() async {
+    try {
+      final response = await dio.get('/products/categories');
+      return List<CategoryModel>.from(
+        (response.data as List).map((x) => CategoryModel.fromJson(x)),
+      );
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Get categories failed',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  @override
+  Future<AllProductsModel> getProductsByCategory({
+    required String slug,
+    String? sortBy,
+    String? order,
+  }) async {
+    try {
+      final queryParameters = <String, dynamic>{};
+      if (sortBy != null) queryParameters['sortBy'] = sortBy;
+      if (order != null) queryParameters['order'] = order;
+      final response = await dio.get(
+        '/products/category/$slug',
+        queryParameters: queryParameters,
+      );
+      return AllProductsModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw ServerException(
+        message: e.response?.data['message'] ?? 'Get products by category failed',
         statusCode: e.response?.statusCode,
       );
     }

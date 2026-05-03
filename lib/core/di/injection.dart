@@ -16,6 +16,10 @@ import '../../features/products/presentation/bloc/one_product/product_bloc.dart'
 import '../../features/products/presentation/bloc/all_products/all_products_bloc.dart';
 import '../../features/products/domain/usecases/get_all_products_usecase.dart';
 import '../../features/products/domain/usecases/search_products_usecase.dart';
+import '../../features/products/domain/usecases/get_categories_usecase.dart';
+import '../../features/products/domain/usecases/get_products_by_category_usecase.dart';
+import '../../features/products/presentation/bloc/categories/categories_bloc.dart';
+import '../../features/products/presentation/bloc/category_products/category_products_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -62,6 +66,20 @@ Future<void> configureDependencies() async {
     () => AllProductsBloc(
       getAllProductsUseCase: getIt<GetAllProductsUseCase>(),
       searchProductsUseCase: getIt<SearchProductsUseCase>(),
+    ),
+  );
+  getIt.registerSingleton<GetCategoriesUseCase>(
+    GetCategoriesUseCase(getIt<ProductRepository>()),
+  );
+  getIt.registerSingleton<GetProductsByCategoryUseCase>(
+    GetProductsByCategoryUseCase(getIt<ProductRepository>()),
+  );
+  getIt.registerFactory<CategoriesBloc>(
+    () => CategoriesBloc(getCategoriesUseCase: getIt<GetCategoriesUseCase>()),
+  );
+  getIt.registerFactory<CategoryProductsBloc>(
+    () => CategoryProductsBloc(
+      getProductsByCategoryUseCase: getIt<GetProductsByCategoryUseCase>(),
     ),
   );
 }
